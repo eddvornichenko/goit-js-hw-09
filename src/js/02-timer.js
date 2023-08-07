@@ -9,7 +9,7 @@ const options = {
   onClose(selectedDates) {
     const selectedDate = selectedDates[0];
     if (selectedDate <= new Date()) {
-      alert("Please choose a date in the future");
+      alert("Пожалуйста, выберите дату в будущем");
       document.querySelector("[data-start]").disabled = true;
     } else {
       document.querySelector("[data-start]").disabled = false;
@@ -20,16 +20,32 @@ const options = {
 const dateTimePicker = flatpickr("#datetime-picker", options);
 
 let countdownInterval;
+let timerRunning = false;
 
 function startTimer() {
   const selectedDate = dateTimePicker.selectedDates[0];
   const currentDate = new Date();
   if (selectedDate > currentDate) {
-    countdownInterval = setInterval(updateTimer, 1000, selectedDate, currentDate);
+    if (timerRunning) return;
+    timerRunning = true;
+    countdownInterval = setInterval(() => {
+      const updatedCurrentDate = new Date();
+      updateTimer(selectedDate, updatedCurrentDate);
+    }, 1000);
     updateTimer(selectedDate, currentDate);
+    document.querySelector("[data-start]").disabled = true;
+    document.querySelector("#datetime-picker").disabled = true;
   } else {
-    alert("Please choose a date in the future");
+    alert("Пожалуйста, выберите дату в будущем");
   }
+}
+
+function resetTimer() {
+  clearInterval(countdownInterval);
+  document.querySelector("[data-start]").disabled = false;
+  document.querySelector("#datetime-picker").disabled = false;
+  timerRunning = false;
+  renderTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 }
 
 function updateTimer(selectedDate, currentDate) {
@@ -38,11 +54,9 @@ function updateTimer(selectedDate, currentDate) {
     const { days, hours, minutes, seconds } = convertMs(remainingTime);
     renderTimer({ days, hours, minutes, seconds });
   } else {
-    clearInterval(countdownInterval);
-    document.querySelector("[data-start]").disabled = true;
+    resetTimer();
   }
 }
-
 
 function addLeadingZero(value) {
   return value.toString().padStart(2, "0");
@@ -56,21 +70,18 @@ function renderTimer({ days, hours, minutes, seconds }) {
 }
 
 function convertMs(ms) {
-
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
   const days = Math.floor(ms / day);
-
   const hours = Math.floor((ms % day) / hour);
-
   const minutes = Math.floor(((ms % day) % hour) / minute);
-
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
 }
 
 document.querySelector("[data-start]").addEventListener("click", startTimer);
+document.querySelector("[data-reset]").addEventListener("click", resetTimer);

@@ -1,6 +1,5 @@
 import Notiflix from 'notiflix';
 
-
 function createPromise(position, delay) {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
@@ -23,6 +22,11 @@ document.querySelector('.form').addEventListener('submit', (event) => {
   let delay = parseInt(delayInput.value);
   const step = parseInt(stepInput.value);
   const amount = parseInt(amountInput.value);
+
+  if (step <= 0 || delay <= 0 || amount <= 0) {
+    Notiflix.Notify.failure('❌ Please select corrective values ​​for step, delay and amount.');
+    return;
+  }
 
   for (let i = 0; i < amount; i++) {
     const position = i + 1;

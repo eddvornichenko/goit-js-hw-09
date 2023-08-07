@@ -25,24 +25,24 @@ function startTimer() {
   const selectedDate = dateTimePicker.selectedDates[0];
   const currentDate = new Date();
   if (selectedDate > currentDate) {
-    countdownInterval = setInterval(updateTimer, 1000, selectedDate);
-    updateTimer(selectedDate);
+    countdownInterval = setInterval(updateTimer, 1000, selectedDate, currentDate);
+    updateTimer(selectedDate, currentDate);
   } else {
     alert("Please choose a date in the future");
   }
 }
 
-function updateTimer(selectedDate) {
-  const currentDate = new Date();
+function updateTimer(selectedDate, currentDate) {
   const remainingTime = selectedDate - currentDate;
-  const { days, hours, minutes, seconds } = convertMs(remainingTime);
-  renderTimer({ days, hours, minutes, seconds });
-
-  if (remainingTime <= 0) {
+  if (remainingTime > 0) {
+    const { days, hours, minutes, seconds } = convertMs(remainingTime);
+    renderTimer({ days, hours, minutes, seconds });
+  } else {
     clearInterval(countdownInterval);
     document.querySelector("[data-start]").disabled = true;
   }
 }
+
 
 function addLeadingZero(value) {
   return value.toString().padStart(2, "0");
